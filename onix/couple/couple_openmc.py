@@ -706,7 +706,10 @@ class Couple_openmc(object):
         # Material is rename 'cell name' + 'mat'
         # New material id is 'mat id' + 'cell id'
         material.name = '{} mat'.format(cell_name)
-        material.id = int('{}{}'.format(material.id, cell.id))
+        additional_zeroes=''
+        while int('{}'.format(material.id)+additional_zeroes+'{}'.format(cell.id)) in material.used_ids:
+            additional_zeroes=additional_zeroes+'0'
+        material.id = int('{}'.format(material.id)+additional_zeroes+'{}'.format(cell.id))
 
         # Here, we overwrite the original material object with a copy which id and name have been modified
         # to reflect the fact that this material object is specific to this cell
