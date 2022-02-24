@@ -709,7 +709,7 @@ class Couple_openmc(object):
         additional_zeroes=''
         while int('{}{}{}'.format(material.id, additional_zeroes, cell.id)) in material.used_ids:
             additional_zeroes=additional_zeroes+'0'
-        material.id = int('{}'.format(material.id)+additional_zeroes+'{}'.format(cell.id))
+        material.id = int('{}{}{}'.format(material.id, additional_zeroes, cell.id))
 
         # Here, we overwrite the original material object with a copy which id and name have been modified
         # to reflect the fact that this material object is specific to this cell
