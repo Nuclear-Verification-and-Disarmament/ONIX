@@ -706,7 +706,7 @@ class Couple_openmc(object):
         # Material is rename 'cell name' + 'mat'
         # New material id is 'mat id' + 'cell id'
         material.name = '{} mat'.format(cell_name)
-        additional_zeroes=''
+        additional_zeroes = ''
         while int('{}{}{}'.format(material.id, additional_zeroes, cell.id)) in material.used_ids:
             additional_zeroes = additional_zeroes + '0'
         material.id = int('{}{}{}'.format(material.id, additional_zeroes, cell.id))
