@@ -935,19 +935,19 @@ class Couple_openmc(object):
         return bucell_dict
 
 
-    def _get_flux_tally(self, bucell):
+    def _get_flux_tally(self, bucell, bucellfilter):
 
         flux = openmc.Tally(name='{} flux'.format(bucell.name))
-        flux.filters = [openmc.CellFilter(bucell.id)]
+        flux.filters = [bucellfilter]
         flux.filters.append(self.energy_bin)
         flux.scores = ['flux']
 
         return flux
 
-    def _get_flux_spectrum_tally(self, bucell):
+    def _get_flux_spectrum_tally(self, bucell, bucellfilter):
 
         flux_spectrum = openmc.Tally(name='{} flux spectrum'.format(bucell.name))
-        flux_spectrum.filters = [openmc.CellFilter(bucell.id)]
+        flux_spectrum.filters = [bucellfilter]
         flux_spectrum.filters.append(self.mg_energy_bin)
         flux_spectrum.scores = ['flux']
 
@@ -955,14 +955,14 @@ class Couple_openmc(object):
 
     # Every nuclide presents in cell material will have its tally taken
     # (n,t) is tallied for all nuclides for the moment. It is surely more efficient to only tally it for Lithium
-    def _get_all_nucl_rxn_tally(self, bucell):
+    def _get_all_nucl_rxn_tally(self, bucell, bucellfilter):
 
         nucl_list = self._get_nucl_to_be_tallied(bucell)
         print ('bucell name',bucell.name)
         print ('nucl list when set to tally',nucl_list)
         nucl_list = utils.bu_namelist_to_mc_namelist(nucl_list)
         rxn = openmc.Tally(name='{} rxn rate'.format(bucell.name))
-        rxn.filters = [openmc.CellFilter(bucell.id)]
+        rxn.filters = [bucellfilter]
         rxn.filters.append(self.energy_bin)
         rxn.scores = ['fission', '(n,gamma)', '(n,2n)', '(n,3n)', '(n,p)', '(n,a)', '(n,t)']
         #rxn.scores = ['fission', '(n,gamma)']
@@ -1046,9 +1046,10 @@ class Couple_openmc(object):
 
         for bucell_id in bucell_dict:
             bucell = bucell_dict[bucell_id]
-            flux = self._get_flux_tally(bucell)
-            flux_spectrum = self._get_flux_spectrum_tally(bucell)
-            rxn = self._get_all_nucl_rxn_tally(bucell)
+            bucellfilter = openmc.CellFilter(bucell.id)
+            flux = self._get_flux_tally(bucell, bucellfilter)
+            flux_spectrum = self._get_flux_spectrum_tally(bucell, bucellfilter)
+            rxn = self._get_all_nucl_rxn_tally(bucell, bucellfilter)
             # H3_rxn = self.get_H3_rxn_tally(bucell)
             tallies.append(flux)
             tallies.append(flux_spectrum)
