@@ -704,7 +704,9 @@ class Couple_openmc(object):
                 material.add_nuclide(nucl, self.zero_dens_1_atm)
 
         # Material is rename 'cell name' + 'mat'
-        # New material id is 'mat id' + 'cell id'
+        # New material id is 'mat id' + 'cell id' by default
+        # If new id is already in use additional zeroes are added inbetween
+        # composite ids until the resulting id is not already in use
         material.name = '{} mat'.format(cell_name)
         additional_zeroes = ''
         while int('{}{}{}'.format(material.id, additional_zeroes, cell.id)) in material.used_ids:
