@@ -441,7 +441,7 @@ class Couple_openmc(object):
 
         settings = openmc.Settings()
         settings.volume_calculations = [vol1]
-        settings.temperature = {'method':'nearest', 'tolerance': self.tolerance}
+        settings.temperature = self._settings.temperature
         settings.run_mode='volume'
         settings.export_to_xml(path = pre_run_path + '/settings.xml')
 
@@ -1091,6 +1091,11 @@ class Couple_openmc(object):
         root = tree.getroot()
         settings = openmc.Settings()
         source = None
+        temperature_method = None
+        temperature_multipole = None
+        temperature_default = None
+        temperature_range = None
+        temperature_tolerance = None
 
         for child in root:
             if child.tag == 'particles':
@@ -1104,10 +1109,36 @@ class Couple_openmc(object):
                 self.inactive = int(child.text)
             if child.tag == 'source':
                 source = child
+            if child.tag == 'temperature_method':
+                temperature_method = child.text
+            if child.tag == 'temperature_multipole':
+                if child.text == 'true':
+                    temperature_multipole = True
+            if child.tag == 'temperature_default':
+                temperature_default = float(child.text)
+            if child.tag == 'temperature_range':
+                temperature_range = [float(child.text.split()[0]),float(child.text.split()[1])]
+            if child.tag == 'temperature_tolerance':
+                temperature_tolerance = float(child.text)
 
         settings.output = {'tallies': False}
-        settings.temperature = {'method':'nearest', 'tolerance': self.tolerance}
-
+        
+        if temperature_method is None:
+            temperature_method = 'nearest'
+        temperature_dict = {}
+        temperature_dict.append('method': temperature_method)
+        if temperature_method == 'nearest':
+            if temperature_tolerance is not None:
+                self.tolerance = temperature_tolerance
+            temperature_dict.append('tolerance': self.tolerance)
+        if temperature_multipole:
+            temperature_dict.append('multipole': temperature_multipole)
+        if temperature_default is not None:
+            temperature_dict.append('default': temperature_default)
+        if temperature_range is not None:
+            temperature_dict.append('range': temperature_range)
+        settings.temperature = temperature_dict
+        
         ll = self.bounding_box[0]
         ur = self.bounding_box[1]
         #uniform_dist = openmc.stats.Box(ll, ur, only_fissionable=True)
