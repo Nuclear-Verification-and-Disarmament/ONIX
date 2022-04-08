@@ -454,16 +454,18 @@ class System(object):
         write_file.write(txt)
         write_file.close()
 
-    def _copy_cell_folders_to_step_folder(self, s):
+    def _copy_cell_folders_to_step_folder(self, s, prefix=None):
 
         bucell_dict = self.bucell_dict
         for bucell_id in bucell_dict:
             bucell = bucell_dict[bucell_id]
-            bucell._copy_cell_folders_to_step_folder(s)
+            bucell._copy_cell_folders_to_step_folder(s, prefix)
 
-    def _gen_output_summary_folder(self):
+    def _gen_output_summary_folder(self, prefix=None):
 
         name = 'output_summary'
+        if prefix!=None:
+            name = prefix + name
         self._output_summary_path = utils.get_folder_path(name)
         utils.gen_folder(name)
 

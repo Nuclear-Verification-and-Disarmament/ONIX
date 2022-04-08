@@ -1481,15 +1481,19 @@ class Couple_openmc(object):
             bucell_sequence._set_initial_flux(flux)
             bucell_sequence._set_initial_pow_dens(pow_dens)
 
-    def _copy_MC_files(self, s, final='no'):
+    def _copy_MC_files(self, s, prefix=None, final='no'):
 
         if final == 'no':
             step_folder = '/step_{}'.format(s)
+            if prefix!=None:
+                step_folder = '/' + prefix[:-1] + step_folder
         elif final =='yes':
+            step_folder = '/step_final'
+            if prefix!=None:
+                step_folder = '/' + prefix[:-1] + step_folder
             # If it is the final step, sequence has not been requested to create
             # a step_final folder. This function needs to do it now.
-            final_step_path = utils.gen_folder('step_final')
-            step_folder = '/step_final'
+            final_step_path = utils.gen_folder(step_folder[1:])
 
         openmc_file_path = os.getcwd()+step_folder+'/OpenMC'
 
@@ -1562,12 +1566,16 @@ class Couple_openmc(object):
             bucell.MC_XS_nucl_list = MC_XS_nucl_list_zamid
 
 
-    def burn(self):
+    def burn(self, prefix=None):
         """Launches the coupled simulation.
         """
 
         start_time = time.time()
-
+        if prefix!=None:
+            if prefix[-1]!='/':
+                prefix = prefix + '/'
+            if prefix[0]=='/':
+                prefix = prefix[1:]
         # If no decay libs have been set, set default libs
         if self._decay_lib_set == 'no':
             self.set_default_decay_lib()
@@ -1641,7 +1649,7 @@ class Couple_openmc(object):
         for s in range(1, steps_number+1):
 
             print ('\n\n\n\n====== STEP {}======\n\n\n\n'.format(s))
-            sequence._gen_step_folder(s)
+            sequence._gen_step_folder(s, prefix)
             print (('\n\n\n=== OpenMC Transport {}===\n\n\n'.format(s)))
             self._change_temperature(s)
             self._run_openmc()
@@ -1650,14 +1658,14 @@ class Couple_openmc(object):
             self._copy_MC_files(s)
             print (('\n\n\n=== Salameche Burn {} ===\n\n\n'.format(s)))
             print (utils.printer.salameche_header)
-            salameche.burn_step(system, s, 'couple')
+            salameche.burn_step(system, s, 'couple', prefix)
             self._set_dens_to_cells()
         
         # This last openmc_run is used to compute the last burnup/time point kinf
         print ('\n\n\n=== OpenMC Transport for Final Point ===\n\n\n')
         self._run_openmc()
 
-        system._gen_output_summary_folder()
+        system._gen_output_summary_folder(prefix)
         if self.reac_rank == 'on':
             system._print_summary_allreacs_rank()
         system._print_summary_subdens()
@@ -1667,7 +1675,7 @@ class Couple_openmc(object):
         system._print_summary_kinf()
         system._print_summary_param()
         system._print_summary_isomeric_branching_ratio()
-        self._copy_MC_files(s, final='yes')
+        self._copy_MC_files(s,prefix,final='yes')
 
         run_time = time.time() - start_time
         print ('\n\n\n >>>>>> ONIX burn took {} seconds <<<<<<< \n\n\n'.format(run_time))

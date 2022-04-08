@@ -847,10 +847,12 @@ class Sequence(object):
     #     name = 'step_0'
     #     utils.gen_folder(name)
 
-    def _gen_step_folder(self, s):
+    def _gen_step_folder(self, s, prefix=None):
 
         # Folder numbering starts with 1 not 0
         name = 'step_{}'.format(s)
+        if prefix!=None:
+            name = prefix + name
         utils.gen_folder(name)
 
     def microsteps_number(self, s):

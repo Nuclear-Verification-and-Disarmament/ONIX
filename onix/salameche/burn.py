@@ -9,7 +9,7 @@ from . import py_pade
 
 # This function is in fact not used anymore.
 # Might need to be removed
-def burn(system):
+def burn(system, prefix=None):
     """Depletes a System Object according to its associated Sequence object.
     """
     sequence = system.sequence
@@ -28,15 +28,15 @@ def burn(system):
 
         print ('\n\n\n\n STEP {}\n\n\n\n'.format(s))
 
-        sequence._gen_step_folder(s)
-        burn_step(system, s, mode='stand alone')
+        sequence._gen_step_folder(s, prefix)
+        burn_step(system, s, mode='stand alone', prefix=prefix)
 
-    system._gen_output_summary_folder()
+    system._gen_output_summary_folder(prefix)
     system._print_summary_allreacs_rank()
     system._print_summary_subdens()
     system._print_summary_dens()
 
-def burn_step(system, s, mode):
+def burn_step(system, s, mode, prefix=None):
 
     """Depletes the system for macrostep s.
 
@@ -64,7 +64,7 @@ def burn_step(system, s, mode):
 
     if reac_rank == 'on':
         system._print_current_allreacs_rank()
-    system._copy_cell_folders_to_step_folder(s)
+    system._copy_cell_folders_to_step_folder(s, prefix)
 
 def burn_cell(bucell, s, mode, reac_rank):
 
