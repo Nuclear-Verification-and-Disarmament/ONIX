@@ -65,7 +65,7 @@ def read_nuclide_reac_rank(nuclide, step, path):
 
     return [destruction, production]
 
-def plot_bucell_nuclide_network(nuclide, step, path, cell, threshold):
+def plot_bucell_nuclide_network(nuclide, step, path, cell, threshold, threshold_mode='absolute'):
     
     """Plots a network diagram of the destruction and production reaction rates of a specified nuclide at a given macrostep for a given BUCell. Reaction rates are in :math:`barn^{-2}cm^{-1}s^{-1}`. Production channels are indicated with the name of the parent nuclide, destruction channels are indicated with the name of the reaction.
 
@@ -81,8 +81,17 @@ def plot_bucell_nuclide_network(nuclide, step, path, cell, threshold):
         Name of the BUCell for which the diagram should be plotted
     threshold: float
         Value under which reaction rates are not shown on diagram
-
+    threshold_mode: 'absolute' or 'fraction'
+        Sets threshold as either absolute reaction rate or as fraction of total reaction rate
+      
     """
+    if threshold_mode not in ['absolute','fraction']:
+        print('Threshold mode needs to be given as either \'absolute\' (default) or \'fraction'!')
+        return
+    if threshold_mode=='fraction' and (threshold<0. or threshold>1.):
+        print('In fraction mode threshold needs to be between 0 and 1!')
+        return
+              
     path_to_rank = path +'/output_summary/cell_{}_reacs_rank'.format(cell)
 
     file = open(path_to_rank, 'r')
@@ -110,7 +119,7 @@ def plot_bucell_nuclide_network(nuclide, step, path, cell, threshold):
         if '-' not in tuples[0]:
             # if tuples[1] == 0.0:
             #   continue
-            if tuples[1] < threshold:
+            if threshold_mode=='absolute' and tuples[1] < threshold:
                 continue
             dest_total += tuples[1]
 
@@ -119,8 +128,12 @@ def plot_bucell_nuclide_network(nuclide, step, path, cell, threshold):
         if '-' not in tuples[0]:
             # if tuples[1] == 0.0:
             #   continue
-            if tuples[1] < threshold:
-                continue
+            if threshold_mode=='absolute'
+                if tuples[1] < threshold:
+                    continue
+            else:
+                if tuples[1] < threshold*dest_total:
+                    continue
             destruction[tuples[0]] = [tuples[1], tuples[1]/dest_total] # val and percent
 
 
@@ -132,7 +145,7 @@ def plot_bucell_nuclide_network(nuclide, step, path, cell, threshold):
             reaction_val = tuples[1]
             # if reaction_val == 0.0:
             #   continue    
-            if reaction_val < threshold:
+            if threshold_mode='absolute' and reaction_val < threshold:
                 continue    
             prod_total += reaction_val
 
@@ -143,27 +156,23 @@ def plot_bucell_nuclide_network(nuclide, step, path, cell, threshold):
             reaction_val = tuples[1]
             # if reaction_val == 0.0:
             #   continue    
-            if reaction_val < threshold:
-                continue
+            if threshold_mode=='absolute':
+                if reaction_val < threshold:
+                    continue
+            else:
+                if reaction_val < threshold*prod_total:
+                    continue
             production[parent] = [reaction, reaction_val, reaction_val/prod_total]
 
 
     G = nx.MultiDiGraph()
 
     for parent in production:
-        label = '{}\n{:.2E}[{:.2%}]'.format(production[parent][0], production[parent][1], production[parent][2])
+        label = '{}\n{:.2E}\n[{:.2%}]'.format(production[parent][0], production[parent][1], production[parent][2])
         G.add_edge(parent, nuclide, label = label, length = 10)
 
     for edge in destruction:
-        G.add_edge(nuclide, edge, label = '{:.2E}[{:.2%}]'.format(destruction[edge][0],destruction[edge][1] ), length = 10)
-
-    # Get target nuclide index
-    index = 0
-    for node in G.nodes():
-        if node == nuclide:
-            break
-        index += 1
-
+        G.add_edge(nuclide, edge, label = '{:.2E}\n[{:.2%}]'.format(destruction[edge][0],destruction[edge][1] ), length = 10)
 
     edges = G.edges()
     edge_labels = []
@@ -179,19 +188,26 @@ def plot_bucell_nuclide_network(nuclide, step, path, cell, threshold):
         if node in destruction:
             node_color.append('darksalmon')
 
-    edges = G.edges()
+    
     # edge_weights = [G[u][v]['weight'] for u,v in edges]
     # red_edges = [('C','D'),('D','A')]
     # edge_colors = ['black' if not edge in red_edges else 'red' for edge in G.edges()]
-    pos=nx.circular_layout(G, scale = 2)
+    outerlist=[]
+    for node in G.nodes:
+        if node!=nuclide:
+            outerlist.append(node)
+    pos=nx.circular_layout(outerlist, scale = 2)
     pos[nuclide] = np.array([0, 0])
+    plt.figure(1,figsize=(7,7))
     nx.draw_networkx_edge_labels(G,pos,edge_labels=edge_labels)
     nx.draw_networkx_labels(G,pos)
     #nx.draw_networkx_edges(G,pos, edges = edges)
     nx.draw_networkx_edges(G,pos)
-    nx.draw(G,pos, node_size=4000, node_color = node_color, font_size = 6)
+    nx.draw(G,pos, node_size=6000, node_color = node_color, font_size = 5)
 
     plt.show()
+    plt.savefig('Nuclide_network_{}_{}_step_{}.format(nuclide, cell, step))
+    plt.close()
 
 def plot_nuclide_dens_from_passport(bucell, nuclide):
     """Plots the density evolution of a given nuclide (in :math:`atm barn^{-2}cm{-1}`) in a given BUCell against time (in days). This method requires that the corresonding Passport and BUCell objects are already defined in the Python environment.
