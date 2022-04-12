@@ -206,7 +206,7 @@ def plot_bucell_nuclide_network(nuclide, step, path, cell, threshold, threshold_
     nx.draw(G,pos, node_size=6000, node_color = node_color, font_size = 5)
 
     plt.show()
-    plt.savefig('Nuclide_network_{}_{}_step_{}.format(nuclide, cell, step))
+    plt.savefig('Nuclide_network_{}_{}_step_{}.png'.format(nuclide, cell, step))
     plt.close()
 
 def plot_nuclide_dens_from_passport(bucell, nuclide):
