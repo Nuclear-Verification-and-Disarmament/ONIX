@@ -1129,8 +1129,8 @@ class Couple_openmc(object):
         temperature_dict.append('method': temperature_method)
         if temperature_method == 'nearest':
             if temperature_tolerance is not None:
-                self.tolerance = temperature_tolerance
-            temperature_dict.append('tolerance': self.tolerance)
+                self._tolerance = temperature_tolerance
+            temperature_dict.append('tolerance': self._tolerance)
         if temperature_multipole:
             temperature_dict.append('multipole': temperature_multipole)
         if temperature_default is not None:
