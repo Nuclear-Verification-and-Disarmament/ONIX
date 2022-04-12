@@ -145,7 +145,7 @@ def plot_bucell_nuclide_network(nuclide, step, path, cell, threshold, threshold_
             reaction_val = tuples[1]
             # if reaction_val == 0.0:
             #   continue    
-            if threshold_mode='absolute' and reaction_val < threshold:
+            if threshold_mode == 'absolute' and reaction_val < threshold:
                 continue    
             prod_total += reaction_val
 
