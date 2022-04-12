@@ -65,7 +65,7 @@ def read_nuclide_reac_rank(nuclide, step, path):
 
     return [destruction, production]
 
-def plot_bucell_nuclide_network(nuclide, step, path, cell, threshold, threshold_mode='absolute'):
+def plot_bucell_nuclide_network(nuclide, step, path, cell, threshold, threshold_mode='absolute', disable_show=False):
     
     """Plots a network diagram of the destruction and production reaction rates of a specified nuclide at a given macrostep for a given BUCell. Reaction rates are in :math:`barn^{-2}cm^{-1}s^{-1}`. Production channels are indicated with the name of the parent nuclide, destruction channels are indicated with the name of the reaction.
 
@@ -205,7 +205,8 @@ def plot_bucell_nuclide_network(nuclide, step, path, cell, threshold, threshold_
     nx.draw_networkx_edges(G,pos)
     nx.draw(G,pos, node_size=6000, node_color = node_color, font_size = 5)
 
-    plt.show()
+    if not disable_show:
+        plt.show()
     plt.savefig('Nuclide_network_{}_{}_step_{}.png'.format(nuclide, cell, step))
     plt.close()
 
