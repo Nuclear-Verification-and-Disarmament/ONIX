@@ -88,7 +88,7 @@ def plot_bucell_nuclide_network(nuclide, step, path, cell, threshold, threshold_
     if threshold_mode not in ['absolute','fraction']:
         print('Threshold mode needs to be given as either \'absolute\' (default) or \'fraction\'!')
         return
-    if threshold_mode=='fraction' and (threshold<0. or threshold>1.):
+    if threshold_mode == 'fraction' and (threshold < 0. or threshold > 1.):
         print('In fraction mode threshold needs to be between 0 and 1!')
         return
               
