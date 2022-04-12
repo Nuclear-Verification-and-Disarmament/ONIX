@@ -128,7 +128,7 @@ def plot_bucell_nuclide_network(nuclide, step, path, cell, threshold, threshold_
         if '-' not in tuples[0]:
             # if tuples[1] == 0.0:
             #   continue
-            if threshold_mode=='absolute'
+            if threshold_mode == 'absolute':
                 if tuples[1] < threshold:
                     continue
             else:
