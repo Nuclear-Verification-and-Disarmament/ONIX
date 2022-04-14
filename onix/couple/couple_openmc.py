@@ -307,6 +307,9 @@ class Couple_openmc(object):
         # This function stores the periodic coupling of surfaces and it will be used later
         self._periodic_surfaces_dict = read_periodic_surfaces()
 
+        #reads, modifies and set settings
+        self._read_user_settings()
+
         # prerun to access cells and materials objects, to set cell volumes and if chosen
         # add 0 density nuclides
         self._pre_run(root_cell)
@@ -314,9 +317,6 @@ class Couple_openmc(object):
         bucell_dict = self._get_bucell_from_cell()
         system.bucell_dict = bucell_dict
         system.bounding_box = self.bounding_box
-
-        # reads, modifies and set settings
-        self._read_user_settings()
 
 
         # Move input files to input file folder
@@ -441,7 +441,7 @@ class Couple_openmc(object):
 
         settings = openmc.Settings()
         settings.volume_calculations = [vol1]
-        settings.temperature = self._settings.temperature
+        settings.temperature = self.settings.temperature
         settings.run_mode='volume'
         settings.export_to_xml(path = pre_run_path + '/settings.xml')
 
@@ -1126,17 +1126,17 @@ class Couple_openmc(object):
         if temperature_method is None:
             temperature_method = 'nearest'
         temperature_dict = {}
-        temperature_dict.append('method': temperature_method)
+        temperature_dict.update({'method': temperature_method})
         if temperature_method == 'nearest':
             if temperature_tolerance is not None:
                 self._tolerance = temperature_tolerance
-            temperature_dict.append('tolerance': self._tolerance)
+            temperature_dict.update({'tolerance': self._tolerance})
         if temperature_multipole:
-            temperature_dict.append('multipole': temperature_multipole)
+            temperature_dict.update({'multipole': temperature_multipole})
         if temperature_default is not None:
-            temperature_dict.append('default': temperature_default)
+            temperature_dict.update({'default': temperature_default})
         if temperature_range is not None:
-            temperature_dict.append('range': temperature_range)
+            temperature_dict.update({'range': temperature_range})
         settings.temperature = temperature_dict
         
         ll = self.bounding_box[0]
