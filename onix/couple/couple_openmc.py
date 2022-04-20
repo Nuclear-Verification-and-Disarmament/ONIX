@@ -307,6 +307,9 @@ class Couple_openmc(object):
         # This function stores the periodic coupling of surfaces and it will be used later
         self._periodic_surfaces_dict = read_periodic_surfaces()
 
+        #reads, modifies and set settings
+        self._read_user_settings()
+
         # prerun to access cells and materials objects, to set cell volumes and if chosen
         # add 0 density nuclides
         self._pre_run(root_cell)
@@ -314,9 +317,6 @@ class Couple_openmc(object):
         bucell_dict = self._get_bucell_from_cell()
         system.bucell_dict = bucell_dict
         system.bounding_box = self.bounding_box
-
-        # reads, modifies and set settings
-        self._read_user_settings()
 
 
         # Move input files to input file folder
@@ -441,7 +441,7 @@ class Couple_openmc(object):
 
         settings = openmc.Settings()
         settings.volume_calculations = [vol1]
-        settings.temperature = {'method':'nearest', 'tolerance': self.tolerance}
+        settings.temperature = self.settings.temperature
         settings.run_mode='volume'
         settings.export_to_xml(path = pre_run_path + '/settings.xml')
 
@@ -1091,6 +1091,11 @@ class Couple_openmc(object):
         root = tree.getroot()
         settings = openmc.Settings()
         source = None
+        temperature_method = None
+        temperature_multipole = None
+        temperature_default = None
+        temperature_range = None
+        temperature_tolerance = None
 
         for child in root:
             if child.tag == 'particles':
@@ -1104,10 +1109,36 @@ class Couple_openmc(object):
                 self.inactive = int(child.text)
             if child.tag == 'source':
                 source = child
+            if child.tag == 'temperature_method':
+                temperature_method = child.text
+            if child.tag == 'temperature_multipole':
+                if child.text == 'true':
+                    temperature_multipole = True
+            if child.tag == 'temperature_default':
+                temperature_default = float(child.text)
+            if child.tag == 'temperature_range':
+                temperature_range = [float(child.text.split()[0]),float(child.text.split()[1])]
+            if child.tag == 'temperature_tolerance':
+                temperature_tolerance = float(child.text)
 
         settings.output = {'tallies': False}
-        settings.temperature = {'method':'nearest', 'tolerance': self.tolerance}
-
+        
+        if temperature_method is None:
+            temperature_method = 'nearest'
+        temperature_dict = {}
+        temperature_dict.update({'method': temperature_method})
+        if temperature_method == 'nearest':
+            if temperature_tolerance is not None:
+                self._tolerance = temperature_tolerance
+            temperature_dict.update({'tolerance': self._tolerance})
+        if temperature_multipole:
+            temperature_dict.update({'multipole': temperature_multipole})
+        if temperature_default is not None:
+            temperature_dict.update({'default': temperature_default})
+        if temperature_range is not None:
+            temperature_dict.update({'range': temperature_range})
+        settings.temperature = temperature_dict
+        
         ll = self.bounding_box[0]
         ur = self.bounding_box[1]
         #uniform_dist = openmc.stats.Box(ll, ur, only_fissionable=True)
