@@ -2629,7 +2629,7 @@ class Cell(object):
     def _copy_cell_folders_to_step_folder(self, s, prefix=None):
 
         cell_folder_path = self.folder_path
-	if prefix!=None:
+        if prefix!=None:
             shutil.copytree(cell_folder_path, os.getcwd() + '/' + prefix[:-1] + '/step_{}/{}_cell'.format(s, self.name))
         else:
             shutil.copytree(cell_folder_path, os.getcwd() + '/step_{}/{}_cell'.format(s, self.name))

@@ -1655,7 +1655,7 @@ class Couple_openmc(object):
             self._run_openmc()
             self._set_tallies_to_bucells(s)
             self._step_normalization(s)
-            self._copy_MC_files(s)
+            self._copy_MC_files(s,prefix)
             print (('\n\n\n=== Salameche Burn {} ===\n\n\n'.format(s)))
             print (utils.printer.salameche_header)
             salameche.burn_step(system, s, 'couple', prefix)
