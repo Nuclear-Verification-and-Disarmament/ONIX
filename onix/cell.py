@@ -2626,10 +2626,13 @@ class Cell(object):
         utils.gen_cell_folder(cell_name)
         self._folder_path = utils.get_cell_folder_path(cell_name)
 
-    def _copy_cell_folders_to_step_folder(self, s):
+    def _copy_cell_folders_to_step_folder(self, s, prefix=None):
 
         cell_folder_path = self.folder_path
-        shutil.copytree(cell_folder_path, os.getcwd() + '/step_{}/{}_cell'.format(s, self.name))
+        if prefix!=None:
+            shutil.copytree(cell_folder_path, os.getcwd() + '/' + prefix[:-1] + '/step_{}/{}_cell'.format(s, self.name))
+        else:
+            shutil.copytree(cell_folder_path, os.getcwd() + '/step_{}/{}_cell'.format(s, self.name))
         shutil.rmtree(cell_folder_path)
 
     # def _gen_output_summary_folder(self):
