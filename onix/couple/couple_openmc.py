@@ -1568,6 +1568,11 @@ class Couple_openmc(object):
 
     def burn(self, prefix=None):
         """Launches the coupled simulation.
+                
+        Parameters
+        ----------
+        prefix: str
+            Prefix for standard ONIX output paths
         """
 
         start_time = time.time()

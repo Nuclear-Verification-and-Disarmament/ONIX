@@ -11,6 +11,11 @@ from . import py_pade
 # Might need to be removed
 def burn(system, prefix=None):
     """Depletes a System Object according to its associated Sequence object.
+    
+    Parameters
+    ----------
+    prefix: str
+        Prefix for standard ONIX output paths
     """
     sequence = system.sequence
     steps_number = sequence.steps_number
@@ -48,6 +53,8 @@ def burn_step(system, s, mode, prefix=None):
         Macrostep number
     mode: str
         'stand alone' or 'couple'
+    prefix: str
+        Prefix for standard ONIX output paths
     """
 
     bucell_list = system.get_bucell_list()
