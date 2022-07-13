@@ -621,8 +621,17 @@ class Cell(object):
                 bucell_isotopic_change_dict = isotopic_change_dict[self.name]
                 unit = bucell_isotopic_change_dict['unit']
                 current_total_dens = self.get_total_dens()
+                if 'wipe' in bucell_isotopic_change_dict:
+                    wipe_dict = bucell_isotopic_change_dict['wipe']
+                    if s+1 in wipe_dict:
+                        nuclide_list = self.get_nucl_list()
+                        for nuclide in  nuclide_list:
+                            nucl_passport = self.get_nuclide(nuclide)
+                            nucl_passport.current_dens = 0.
                 for nucl_name in bucell_isotopic_change_dict:
                     if nucl_name == 'unit':
+                        continue
+                    if nucl_name == 'wipe':
                         continue
                     nuclide_isotopic_change_dict = bucell_isotopic_change_dict[nucl_name]
 
