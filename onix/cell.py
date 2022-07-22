@@ -628,6 +628,22 @@ class Cell(object):
                         for nuclide in  nuclide_list:
                             nucl_passport = self.get_nuclide(nuclide)
                             nucl_passport.current_dens = 0.
+                atom_fractions = {}
+                total = 0
+                if unit == 'weight fraction':
+                    for nucl_name in bucell_isotopic_change_dict:
+                        if nucl_name == 'unit':
+                            continue
+                        if nucl_name == 'wipe':
+                            continue
+                        nuclide_isotopic_change_dict = bucell_isotopic_change_dict[nucl_name]
+                        if s+1 in nuclide_isotopic_change_dict:
+                            atom_fractions[nucl_name] = nuclide_isotopic_change_dict[s+1]/utils.get_nucl_atomic_mass(nucl_name)
+                            total = total + atom_fractions[nucl_name]
+
+                    for nucl_name in atom_fractions:
+                        atom_fractions[nucl_name] = atom_fractions[nucl_name]/total
+
                 for nucl_name in bucell_isotopic_change_dict:
                     if nucl_name == 'unit':
                         continue
@@ -655,6 +671,9 @@ class Cell(object):
                         # else if unit is atom fraction
                         if unit == 'atom fraction':
                             new_dens = nuclide_isotopic_change_dict[s+1]*current_total_dens
+                        #else if unit is weight fraction:
+                        if unit == 'weight fraction':
+                            new_dens = atom_fractions[nucl_name]*current_total_dens
 
                         nucl_passport.current_dens = new_dens
 
