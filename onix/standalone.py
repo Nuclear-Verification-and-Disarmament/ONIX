@@ -182,7 +182,7 @@ class Stand_alone(object):
 			bucell_sequence._set_macrostep_pow_dens(pow_dens)
 
 
-	def burn(self):
+	def burn(self, prefix=None):
 		"""Burns the system
 
 		The method burn will set default nuclear data to the system if the user has not
@@ -239,18 +239,18 @@ class Stand_alone(object):
 		for s in range(1, macrosteps_number+1):
 
 			print ('\n\n\n\n====== STEP {}======\n\n\n\n'.format(s))
-			sequence._gen_step_folder(s)
+			sequence._gen_step_folder(s, prefix)
 			self._step_normalization(s)
 			print (('\n\n\n=== Salameche Burn {}===\n\n\n'.format(s)))
 			if self._xs_libs_set=='yes':
 				self.set_xs_lib(self._xs_libs[s-1])
-			salameche.burn_step(system, s, 'stand alone')
+			salameche.burn_step(system, s, 'stand alone', prefix)
 
 			# To develop. Basially update bu against time when doing constant flux
 			#sequence.dynamic_system_time_bu_conversion(system)
 		
 		
-		system._gen_output_summary_folder()
+		system._gen_output_summary_folder(prefix)
 		system._print_summary_allreacs_rank()
 		system._print_summary_subdens()
 		system._print_summary_dens()
