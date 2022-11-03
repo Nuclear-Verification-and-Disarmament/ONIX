@@ -129,6 +129,9 @@ class Couple_openmc(object):
         # By default tolerance value is set to 500 K for treating intermediate temperatures.
         self._tolerance = 500.0
 
+        # By default output will be written for each simulation step
+        self._write_step_output = True
+
         # Old way of defaulting MC_input_path to cwd
         # if args:
         #   self._MC_input_path = arg[0]
@@ -1540,6 +1543,12 @@ class Couple_openmc(object):
         for file_name in all_MC_files:
             os.remove(os.getcwd() + '/{}'.format(file_name))
 
+    def _delete_MC_files(self):
+
+        all_MC_files = glob.glob('*.xml') + glob.glob('tallies.out') + glob.glob('*.h5')
+        for file_name in all_MC_files:
+            os.remove(os.getcwd() + '/{}'.format(file_name))
+
     def _change_temperature(self, s):
 
         # It seems that temperature set in cells trumps the temperature set in material
@@ -1596,6 +1605,10 @@ class Couple_openmc(object):
             bucell = bucell_dict[bucell_id]
             bucell.MC_XS_nucl_list = MC_XS_nucl_list_zamid
 
+    def disable_step_output(self):
+        """Calling this function will stop ONIX from writing outputs for each simulation step
+        """
+        self._write_step_output = False
 
     def burn(self, prefix=None):
         """Launches the coupled simulation.
@@ -1691,10 +1704,13 @@ class Couple_openmc(object):
             self._run_openmc()
             self._set_tallies_to_bucells(s)
             self._step_normalization(s)
-            self._copy_MC_files(s,prefix)
+            if self._write_step_output:
+                self._copy_MC_files(s,prefix)
+            else:
+                self._delete_MC_files()
             print (('\n\n\n=== Salameche Burn {} ===\n\n\n'.format(s)))
             print (utils.printer.salameche_header)
-            salameche.burn_step(system, s, 'couple', prefix)
+            salameche.burn_step(system, s, 'couple', prefix, self._write_step_output)
             self._set_dens_to_cells()
         
         # This last openmc_run is used to compute the last burnup/time point kinf
@@ -1711,7 +1727,10 @@ class Couple_openmc(object):
         system._print_summary_kinf()
         system._print_summary_param()
         system._print_summary_isomeric_branching_ratio()
-        self._copy_MC_files(s,prefix,final='yes')
+        if self._write_step_output:
+            self._copy_MC_files(s,prefix,final='yes')
+        else:
+            self._delete_MC_files()
 
         run_time = time.time() - start_time
         print ('\n\n\n >>>>>> ONIX burn took {} seconds <<<<<<< \n\n\n'.format(run_time))
