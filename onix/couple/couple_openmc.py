@@ -610,7 +610,7 @@ class Couple_openmc(object):
         root = tree.getroot()
         for child in root:
             if child.tag == 'cross_sections':
-                self._cross_sections_path = child.text.replace('/cross_sections.xml', '')
+                self._cross_sections_path = child.text
 
 
     @property
@@ -810,7 +810,7 @@ class Couple_openmc(object):
     def _set_MC_XS_nucl_list(self):
 
         #path_to_xs_xml = os.environ['OPENMC_CROSS_SECTIONS']
-        path_to_xs_xml = self._cross_sections_path + '/cross_sections.xml'
+        path_to_xs_xml = self._cross_sections_path
 
         self.MC_XS_nucl_list = []
 
@@ -1015,7 +1015,7 @@ class Couple_openmc(object):
             pass
 
         # Set the cross section path again to materials
-        materials.cross_sections = self._cross_sections_path +'/cross_sections.xml'
+        materials.cross_sections = self._cross_sections_path
 
         materials.export_to_xml()
 
@@ -1402,7 +1402,7 @@ class Couple_openmc(object):
         print ('\n\n\n***********Sampling point-wise cross section data***********\n\n\n')
         sampled_isomeric_branching_data = self._sampled_isomeric_branching_data
         sampled_ng_cross_section_data = {}
-        cross_section_path = self._cross_sections_path
+        cross_section_path = os.path.dirname(self._cross_sections_path)
         cross_sections_files_name = os.listdir(cross_section_path)
 
         total_count = 1
