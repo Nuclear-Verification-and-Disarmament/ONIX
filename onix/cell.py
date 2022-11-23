@@ -2064,7 +2064,7 @@ class Cell(object):
     #   self._all_nucl = self.get_all_nucl
 
 
-    def _set_MC_tallies(self, mc_nuclide_densities, flux_tally, flux_spectrum_tally, rxn_rate_tally, sampled_isomeric_branching_data, sampled_ng_cross_section_data, xs_mode, s):
+    def _set_MC_tallies(self, flux_tally, flux_spectrum_tally, rxn_rate_tally, sampled_isomeric_branching_data, sampled_ng_cross_section_data, xs_mode, s):
 
         MC_flux = flux_tally.mean[0][0][0]
         self.sequence._set_macrostep_MC_flux(MC_flux)
@@ -2094,11 +2094,6 @@ class Cell(object):
             # But the macro xs need to be divided by 1E-24 and not 0
 
             if nucl_passport.current_dens == 0.0:
-
-                # mc_nuclide_densities gives a tuples where the first element is the nuclide name
-                # and the second element is the density
-                #nucl_dens = mc_nuclide_densities[nucl][1]
-
                 nucl_dens = self.zero_dens_1_atm
             else:
                 nucl_dens = nucl_passport.current_dens
