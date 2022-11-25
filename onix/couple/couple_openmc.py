@@ -568,7 +568,10 @@ class Couple_openmc(object):
     def _set_kinf(self):
 
         statepoint = self.statepoint
-        kinf = statepoint.k_combined
+        if ((int(openmc.__version__.split('.')[1]) == 13) and (int(openmc.__version__.split('.')[2]) >= 1)) or (int(openmc.__version__.split('.')[1]) > 13):
+            kinf = statepoint.keff
+        else:
+            kinf = statepoint.k_combined
 
         system = self.system
         sequence = system.sequence
