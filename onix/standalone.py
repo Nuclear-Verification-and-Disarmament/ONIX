@@ -196,7 +196,11 @@ class Stand_alone(object):
 		At the end of the simulation, burn will print various information on the system in the output_summary folder
 		 """
 		start_time = time.time()
-
+		if prefix!=None:
+            		if prefix[-1]!='/':
+                		prefix = prefix + '/'
+            		if prefix[0]=='/':
+                		prefix = prefix[1:]
 		# If no decay libs and fy libs have been set, set default libs
 		if self._decay_lib_set == 'no':
 			self.set_default_decay_lib()
