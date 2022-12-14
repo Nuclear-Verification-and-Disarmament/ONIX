@@ -1698,7 +1698,8 @@ class Couple_openmc(object):
         for s in range(1, steps_number+1):
 
             print ('\n\n\n\n====== STEP {}======\n\n\n\n'.format(s))
-            sequence._gen_step_folder(s, prefix)
+            if self._write_step_output:
+                sequence._gen_step_folder(s, prefix)
             print (('\n\n\n=== OpenMC Transport {}===\n\n\n'.format(s)))
             self._change_temperature(s)
             self._run_openmc()

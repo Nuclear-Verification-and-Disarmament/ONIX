@@ -1427,7 +1427,6 @@ class Cell(object):
         cell_name = self.name
         passlist = self.passlist
         passport_list = passlist.passport_list
-        cell_folder_path = self.folder_path
         sequence = self.sequence
         time_subseq_mat = sequence.time_subseq_mat
         system_bu_subseq_mat = sequence.system_bu_subseq_mat
@@ -1521,7 +1520,6 @@ class Cell(object):
         cell_name = self.name
         passlist = self.passlist
         passport_list = passlist.passport_list
-        cell_folder_path = self.folder_path
         sequence = self.sequence
         time_seq = sequence.time_seq
         system_bu_seq = sequence.system_bu_seq
@@ -1606,7 +1604,6 @@ class Cell(object):
         cell_name = self.name
         passlist = self.passlist
         passport_list = passlist.passport_list
-        cell_folder_path = self.folder_path
         sequence = self.sequence
         time_seq = sequence.time_seq
         system_bu_seq = sequence.system_bu_seq

@@ -64,12 +64,13 @@ def burn_step(system, s, mode, prefix=None, step_output=True):
     for bucell in bucell_list:
         print ('\n\n\n\n CELL {}\n\n\n\n'.format(bucell.name))
         # Create and set the folder corresponding to that cell
+        if step_output:
+            bucell._set_folder()
+            bucell._print_xs_lib()
         burn_cell(bucell, s, mode, reac_rank, step_output)
         bucell._change_isotope_density(s)
         bucell._change_total_density(s)
         if step_output:
-            bucell._set_folder()
-            bucell._print_xs_lib()
             bucell._print_substep_dens(s)
 
     if step_output:
