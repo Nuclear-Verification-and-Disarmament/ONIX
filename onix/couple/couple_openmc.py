@@ -568,9 +568,10 @@ class Couple_openmc(object):
     def _set_kinf(self):
 
         statepoint = self.statepoint
-        if ((int(openmc.__version__.split('.')[1]) == 13) and (int(openmc.__version__.split('.')[2]) >= 1)) or (int(openmc.__version__.split('.')[1]) > 13):
+        #Criticality attribute naming was changed as of OpenMC 0.13.1
+        try:
             kinf = statepoint.keff
-        else:
+        except AttributeError:
             kinf = statepoint.k_combined
 
         system = self.system
@@ -916,10 +917,11 @@ class Couple_openmc(object):
                 onix_nucl = utils.openmc_name_to_onix_name(nucl)
                 # if nucl is one of the initial non-zero initial nuclide, pass the density
                 if nucl in init_nucl:
-                    if ((int(openmc.__version__.split('.')[1]) == 13) and (int(openmc.__version__.split('.')[2]) >= 1)) or (int(openmc.__version__.split('.')[1]) > 13):
-                        onix_dens_dict[onix_nucl] = openmc_dens_dict[nucl]
-                    else:
+                    #Return format of get_nuclide_atom_densities was changed as of OpenMC 0.13.1
+                    try:
                         onix_dens_dict[onix_nucl] = openmc_dens_dict[nucl][1]
+                    except IndexError:
+                        onix_dens_dict[onix_nucl] = openmc_dens_dict[nucl]
                 # if nucl is not one of the non-zero initial nuclide, set densiy to zero
                 else:
                     onix_dens_dict[onix_nucl] = 0.0
