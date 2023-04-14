@@ -634,7 +634,7 @@ class Cell(object):
                     for nucl_name in bucell_isotopic_change_dict:
                         if nucl_name == 'unit':
                             continue
-                        if nucl_name == 'wipe':
+                        elif nucl_name == 'wipe':
                             continue
                         nuclide_isotopic_change_dict = bucell_isotopic_change_dict[nucl_name]
                         if s+1 in nuclide_isotopic_change_dict:
@@ -647,7 +647,7 @@ class Cell(object):
                 for nucl_name in bucell_isotopic_change_dict:
                     if nucl_name == 'unit':
                         continue
-                    if nucl_name == 'wipe':
+                    elif nucl_name == 'wipe':
                         continue
                     nuclide_isotopic_change_dict = bucell_isotopic_change_dict[nucl_name]
 
@@ -669,10 +669,10 @@ class Cell(object):
                         if unit == 'number density':
                             new_dens = nuclide_isotopic_change_dict[s+1]
                         # else if unit is atom fraction
-                        if unit == 'atom fraction':
+                        elif unit == 'atom fraction':
                             new_dens = nuclide_isotopic_change_dict[s+1]*current_total_dens
                         #else if unit is weight fraction:
-                        if unit == 'weight fraction':
+                        elif unit == 'weight fraction':
                             new_dens = atom_fractions[nucl_name]*current_total_dens
 
                         nucl_passport.current_dens = new_dens
