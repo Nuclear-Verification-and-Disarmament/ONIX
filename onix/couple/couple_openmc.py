@@ -568,7 +568,11 @@ class Couple_openmc(object):
     def _set_kinf(self):
 
         statepoint = self.statepoint
-        kinf = statepoint.k_combined
+        #Criticality attribute naming was changed as of OpenMC 0.13.1
+        try:
+            kinf = statepoint.keff
+        except AttributeError:
+            kinf = statepoint.k_combined
 
         system = self.system
         sequence = system.sequence
@@ -913,7 +917,11 @@ class Couple_openmc(object):
                 onix_nucl = utils.openmc_name_to_onix_name(nucl)
                 # if nucl is one of the initial non-zero initial nuclide, pass the density
                 if nucl in init_nucl:
-                    onix_dens_dict[onix_nucl] = openmc_dens_dict[nucl][1]
+                    #Return format of get_nuclide_atom_densities was changed as of OpenMC 0.13.1
+                    try:
+                        onix_dens_dict[onix_nucl] = openmc_dens_dict[nucl][1]
+                    except IndexError:
+                        onix_dens_dict[onix_nucl] = openmc_dens_dict[nucl]
                 # if nucl is not one of the non-zero initial nuclide, set densiy to zero
                 else:
                     onix_dens_dict[onix_nucl] = 0.0
@@ -1457,16 +1465,11 @@ class Couple_openmc(object):
             # 1E-24 fraction percent does not translate into 1E-24 atm/cm3 always
             # Therefore, the code needs to divide the reaction rate by the correct densities
             # taken from summary.geometry.cell.material
-            cell = summary.geometry.get_cells_by_name(bucell.name)[0]
-            material_dict = cell.get_all_materials()
-            material = material_dict[list(material_dict.keys())[0]]
-            mc_nuclides_densities = material.get_nuclide_atom_densities()
-
             flux_tally = sp.get_tally(name = '{} flux'.format(bucell.name))
             flux_spectrum_tally = sp.get_tally(name = '{} flux spectrum'.format(bucell.name))
             rxn_rate_tally = sp.get_tally(name = '{} rxn rate'.format(bucell.name))
             # H3_rxn_rate_tally = sp.get_tally(name = '{} H3 rxn rate'.format(bucell.name))
-            bucell._set_MC_tallies(mc_nuclides_densities, flux_tally, flux_spectrum_tally, rxn_rate_tally, sampled_isomeric_branching_data, sampled_ng_cross_section_data, xs_mode, s)
+            bucell._set_MC_tallies(flux_tally, flux_spectrum_tally, rxn_rate_tally, sampled_isomeric_branching_data, sampled_ng_cross_section_data, xs_mode, s)
 
         # YOU NEED TO CREATE LIST TO STORE EACH NEW XS
 
