@@ -32,7 +32,7 @@ class Stand_alone(object):
 		self._xs_libs_set = 'no'
 
 		self.system = System(1)
-                self._write_step_output = True
+		self._write_step_output = True
 
 	@property
 	def system(self):
