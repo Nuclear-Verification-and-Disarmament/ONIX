@@ -29,6 +29,7 @@ class Stand_alone(object):
 		self._fy_lib_set = 'no'
 		self._decay_lib_set = 'no'
 		self._xs_lib_set = 'no'
+		self._xs_libs_set = 'no'
 
 		self.system = System(1)
 
@@ -99,6 +100,13 @@ class Stand_alone(object):
 		self._xs_lib_set = 'yes'
 		self._xs_lib_path = xs_lib_path
 		system.set_xs_for_all(xs_lib_path)
+
+	def set_xs_libs(self, xs_libs):
+		"""Sets an iterable of cross section libraries chosen by the user that will be used in order in the simulation steps
+
+		The user needs to specify the paths to the chosen libraries. Iterable length should match the number of simulation steps"""
+		self._xs_libs_set = 'yes'
+		self._xs_libs = xs_libs
 
 	def set_default_xs_lib(self):
 		"""Sets the cross section library to the default cross section library (ENDF/B-VIII)"""
@@ -174,7 +182,7 @@ class Stand_alone(object):
 			bucell_sequence._set_macrostep_pow_dens(pow_dens)
 
 
-	def burn(self):
+	def burn(self, prefix=None):
 		"""Burns the system
 
 		The method burn will set default nuclear data to the system if the user has not
@@ -188,7 +196,11 @@ class Stand_alone(object):
 		At the end of the simulation, burn will print various information on the system in the output_summary folder
 		 """
 		start_time = time.time()
-
+		if prefix!=None:
+            		if prefix[-1]!='/':
+                		prefix = prefix + '/'
+            		if prefix[0]=='/':
+                		prefix = prefix[1:]
 		# If no decay libs and fy libs have been set, set default libs
 		if self._decay_lib_set == 'no':
 			self.set_default_decay_lib()
@@ -204,12 +216,16 @@ class Stand_alone(object):
 			print ('\n\n\n----  User defined path for fission yields library ----\n\n')
 			print ('----  {}  ----\n\n\n'.format(self._fy_lib_path))
 		
-		if self._xs_lib_set == 'no':
+		if self._xs_lib_set == 'no' and self._xs_libs_set == 'no':
 			self.set_default_xs_lib()
 			print ('\n\n\n----Default cross section library set for system----\n\n\n')
 		else:
-			print ('\n\n\n----  Path for cross sections library ----\n\n')
-			print ('----  {}  ----\n\n\n'.format(self._xs_lib_path))
+			if self._xs_lib_set == 'yes':
+				print ('\n\n\n----  Path for cross sections library ----\n\n')
+				print ('----  {}  ----\n\n\n'.format(self._xs_lib_path))
+			else:
+				print ('\n\n\n----  Paths for cross sections libraries ----\n\n')
+				print ('----  {}  ----\n\n\n'.format(self._xs_libs))
 
 		system = self.system
 		sequence = system.sequence
@@ -219,20 +235,26 @@ class Stand_alone(object):
 		system.zam_order_passlist()
 
 		macrosteps_number = sequence.macrosteps_number
+
+		if self._xs_libs_set=='yes':
+			if macrosteps_number!=len(self._xs_libs):
+				raise Xs_steps_missmatch('Number of cross sections libraries given does not match number of simulation steps!')
 		# Shift loop from 1 in order to align loop s and step indexes
 		for s in range(1, macrosteps_number+1):
 
 			print ('\n\n\n\n====== STEP {}======\n\n\n\n'.format(s))
-			sequence._gen_step_folder(s)
+			sequence._gen_step_folder(s, prefix)
 			self._step_normalization(s)
 			print (('\n\n\n=== Salameche Burn {}===\n\n\n'.format(s)))
-			salameche.burn_step(system, s, 'stand alone')
+			if self._xs_libs_set=='yes':
+				self.set_xs_lib(self._xs_libs[s-1])
+			salameche.burn_step(system, s, 'stand alone', prefix)
 
 			# To develop. Basially update bu against time when doing constant flux
 			#sequence.dynamic_system_time_bu_conversion(system)
 		
 		
-		system._gen_output_summary_folder()
+		system._gen_output_summary_folder(prefix)
 		system._print_summary_allreacs_rank()
 		system._print_summary_subdens()
 		system._print_summary_dens()
@@ -241,4 +263,7 @@ class Stand_alone(object):
 
 		run_time = time.time() - start_time
 		print ('\n\n\n >>>>>> ONIX burn took {} seconds <<<<<<< \n\n\n'.format(run_time))
-	
+
+class Xs_steps_missmatch(Exception):
+	"""Raise when number of cross sections libraries given does not match number of simulation steps"""
+	pass	
