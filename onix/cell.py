@@ -621,8 +621,33 @@ class Cell(object):
                 bucell_isotopic_change_dict = isotopic_change_dict[self.name]
                 unit = bucell_isotopic_change_dict['unit']
                 current_total_dens = self.get_total_dens()
+                if 'wipe' in bucell_isotopic_change_dict:
+                    wipe_dict = bucell_isotopic_change_dict['wipe']
+                    if s+1 in wipe_dict:
+                        nuclide_list = self.get_nucl_list()
+                        for nuclide in  nuclide_list:
+                            nucl_passport = self.get_nuclide(nuclide)
+                            nucl_passport.current_dens = 0.
+                atom_fractions = {}
+                total = 0
+                if unit == 'weight fraction':
+                    for nucl_name in bucell_isotopic_change_dict:
+                        if nucl_name == 'unit':
+                            continue
+                        elif nucl_name == 'wipe':
+                            continue
+                        nuclide_isotopic_change_dict = bucell_isotopic_change_dict[nucl_name]
+                        if s+1 in nuclide_isotopic_change_dict:
+                            atom_fractions[nucl_name] = nuclide_isotopic_change_dict[s+1]/utils.get_nucl_atomic_mass(nucl_name)
+                            total = total + atom_fractions[nucl_name]
+
+                    for nucl_name in atom_fractions:
+                        atom_fractions[nucl_name] = atom_fractions[nucl_name]/total
+
                 for nucl_name in bucell_isotopic_change_dict:
                     if nucl_name == 'unit':
+                        continue
+                    elif nucl_name == 'wipe':
                         continue
                     nuclide_isotopic_change_dict = bucell_isotopic_change_dict[nucl_name]
 
@@ -644,8 +669,11 @@ class Cell(object):
                         if unit == 'number density':
                             new_dens = nuclide_isotopic_change_dict[s+1]
                         # else if unit is atom fraction
-                        if unit == 'atom fraction':
+                        elif unit == 'atom fraction':
                             new_dens = nuclide_isotopic_change_dict[s+1]*current_total_dens
+                        #else if unit is weight fraction:
+                        elif unit == 'weight fraction':
+                            new_dens = atom_fractions[nucl_name]*current_total_dens
 
                         nucl_passport.current_dens = new_dens
 
