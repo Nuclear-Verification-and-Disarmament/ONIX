@@ -32,6 +32,7 @@ class Stand_alone(object):
 		self._xs_libs_set = 'no'
 
 		self.system = System(1)
+		self._write_step_output = True
 
 	@property
 	def system(self):
@@ -181,6 +182,10 @@ class Stand_alone(object):
 			bucell_sequence._set_macrostep_flux(system_flux)
 			bucell_sequence._set_macrostep_pow_dens(pow_dens)
 
+	def disable_step_output(self):
+		"""Calling this function will stop ONIX from writing outputs for each simulation step
+		"""
+		self._write_step_output = False
 
 	def burn(self, prefix=None):
 		"""Burns the system
@@ -243,12 +248,13 @@ class Stand_alone(object):
 		for s in range(1, macrosteps_number+1):
 
 			print ('\n\n\n\n====== STEP {}======\n\n\n\n'.format(s))
-			sequence._gen_step_folder(s, prefix)
+			if self._write_step_output:
+                            sequence._gen_step_folder(s, prefix)
 			self._step_normalization(s)
 			print (('\n\n\n=== Salameche Burn {}===\n\n\n'.format(s)))
 			if self._xs_libs_set=='yes':
 				self.set_xs_lib(self._xs_libs[s-1])
-			salameche.burn_step(system, s, 'stand alone', prefix)
+			salameche.burn_step(system, s, 'stand alone', prefix, self._write_step_output)
 
 			# To develop. Basially update bu against time when doing constant flux
 			#sequence.dynamic_system_time_bu_conversion(system)

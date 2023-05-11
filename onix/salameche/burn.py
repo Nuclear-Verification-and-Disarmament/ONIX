@@ -41,7 +41,7 @@ def burn(system, prefix=None):
     system._print_summary_subdens()
     system._print_summary_dens()
 
-def burn_step(system, s, mode, prefix=None):
+def burn_step(system, s, mode, prefix=None, step_output=True):
 
     """Depletes the system for macrostep s.
 
@@ -55,6 +55,8 @@ def burn_step(system, s, mode, prefix=None):
         'stand alone' or 'couple'
     prefix: str
         Prefix for standard ONIX output paths
+    step_output: bool
+        Whether ONIX should write output files for each simulation step
     """
 
     bucell_list = system.get_bucell_list()
@@ -62,18 +64,21 @@ def burn_step(system, s, mode, prefix=None):
     for bucell in bucell_list:
         print ('\n\n\n\n CELL {}\n\n\n\n'.format(bucell.name))
         # Create and set the folder corresponding to that cell
-        bucell._set_folder()
-        bucell._print_xs_lib()
-        burn_cell(bucell, s, mode, reac_rank)
+        if step_output:
+            bucell._set_folder()
+            bucell._print_xs_lib()
+        burn_cell(bucell, s, mode, reac_rank, step_output)
         bucell._change_isotope_density(s)
         bucell._change_total_density(s)
-        bucell._print_substep_dens(s)
+        if step_output:
+            bucell._print_substep_dens(s)
 
-    if reac_rank == 'on':
-        system._print_current_allreacs_rank()
-    system._copy_cell_folders_to_step_folder(s, prefix)
+    if step_output:
+        if reac_rank == 'on':
+            system._print_current_allreacs_rank()
+        system._copy_cell_folders_to_step_folder(s, prefix)
 
-def burn_cell(bucell, s, mode, reac_rank):
+def burn_cell(bucell, s, mode, reac_rank, step_output=True):
 
     """Depletes a BUCell for macrostep s.
 
@@ -87,6 +92,8 @@ def burn_cell(bucell, s, mode, reac_rank):
         'stand alone' or 'couple'
     reac_rank: str
         'on' or 'off'. If set to 'on', each BUCell will compute production and destruction terms ranking for each nuclide at every macrostep.
+    step_output: bool
+        Whether ONIX should write output files for each simulation step
     """
     # Check if different nuclide lists are coherent with each other
     # This should not be called in burn_cell because bun_cell is in the sequence loop
@@ -108,7 +115,8 @@ def burn_cell(bucell, s, mode, reac_rank):
 
     # Store B and C on compressed txt
     # there needs to be a new matrix print for every step (even substep)
-    mb._print_all_mat_to_text(B, C, bucell, s)
+    if step_output:
+        mb._print_all_mat_to_text(B, C, bucell, s)
 
     if flux_approximation == 'iv':
         for i in range(microsteps_number):
