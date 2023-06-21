@@ -126,14 +126,21 @@ class Stand_alone(object):
 		bucell = system.get_bucell(bucell)
 		bucell.set_xs(object)
 
-	def set_fy_lib(self, fy_lib_path):
-		"""Sets a fission yield library chosen by the user that will be used in the simulation
+	def set_fy_lib(self, fy_lib_path, complete=False):
+		"""Sets a fission yield library chosen by the user that will be used in the simulation. Setting the *complete* parameter to True allows ONIX to complement the data of the provided library with additional data found in ENDF/B-VIII.0.
 
-		The user needs to specify the path of the chosen library"""
+		Parameters
+		----------
+		fy_lib_path: str
+		Path to a fission yield library. The library needs to be in ONIX format.
+		complete: bool
+		Indicates to ONIX whether or not to complement the provided library with additional fission yields from ENDF:B-VIII.0 library.
+		"""
+
 		system = self.system
 		self._fy_lib_set = 'yes'
 		self._fy_lib_path = fy_lib_path
-		system.set_fy_for_all(fy_lib_path)
+		system.set_fy_for_all(fy_lib_path, complete)
 
 	def set_default_fy_lib(self):
 		"""Sets the fission yields library to the default fission yield library (ENDF/B-VIII)"""
